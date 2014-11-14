@@ -123,6 +123,8 @@ typedef void (*wsrep_log_cb_t)(wsrep_log_level_t, const char *);
  * COMMUTATIVE  the order in which the writeset is applied does not matter
  * NATIVE       the writeset contains another writeset in this provider format
  *
+ * BEGIN        shall be set on the first trx fragment by provider
+ *
  * Note that some of the flags are mutually exclusive (e.g. COMMIT and
  * ROLLBACK).
  */
@@ -132,8 +134,10 @@ typedef void (*wsrep_log_cb_t)(wsrep_log_level_t, const char *);
 #define WSREP_FLAG_PA_UNSAFE            ( 1ULL << 3 )
 #define WSREP_FLAG_COMMUTATIVE          ( 1ULL << 4 )
 #define WSREP_FLAG_NATIVE               ( 1ULL << 5 )
-#define WSREP_FLAG_NB_PHASE1            ( 1ULL << 6 )
-#define WSREP_FLAG_NB_PHASE2            ( 1ULL << 7 )
+#define WSREP_FLAG_BEGIN                ( 1ULL << 6 )
+
+#define WSREP_FLAGS_LAST                WSREP_FLAG_BEGIN
+#define WSREP_FLAGS_MASK                ((WSREP_FLAGS_LAST << 1) - 1)
 
 
 typedef uint64_t wsrep_trx_id_t;  //!< application transaction ID
@@ -352,6 +356,7 @@ typedef enum wsrep_cb_status (*wsrep_view_cb_t) (
     void**                   sst_req,
     size_t*                  sst_req_len
 );
+
 
 
 /*!
@@ -858,7 +863,6 @@ struct wsrep {
    * @param action      action buffer array to be executed
    * @param count       action buffer count
    * @param meta        transaction meta data
-   * @param flags       WSREP_FLAG_...
    *
    * @retval WSREP_OK         cluster commit succeeded
    * @retval WSREP_CONN_FAIL  must close client connection
@@ -870,8 +874,7 @@ struct wsrep {
                                        size_t                  keys_num,
                                        const struct wsrep_buf* action,
                                        size_t                  count,
-                                       wsrep_trx_meta_t*       meta,
-                                       uint32_t                flags);
+                                       wsrep_trx_meta_t*       meta);
 
   /*!
    * @brief Ends the total order isolation section.
