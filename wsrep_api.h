@@ -126,6 +126,8 @@ typedef void (*wsrep_log_cb_t)(wsrep_log_level_t, const char *);
  * NATIVE       the writeset contains another writeset in this provider format
  *
  * TRX_START    shall be set on the first trx fragment by provider
+ * SNAPSHOT     must be applied snapshot isolation mode
+ * SKIP_EVENT   event was totally ordered but must be skipped on apply/commit
  *
  * Note that some of the flags are mutually exclusive (e.g. TRX_END and
  * ROLLBACK).
@@ -138,8 +140,9 @@ typedef void (*wsrep_log_cb_t)(wsrep_log_level_t, const char *);
 #define WSREP_FLAG_NATIVE               ( 1ULL << 5 )
 #define WSREP_FLAG_TRX_START            ( 1ULL << 6 )
 #define WSREP_FLAG_SNAPSHOT             ( 1ULL << 7 )
+#define WSREP_FLAG_SKIP_EVENT           ( 1ULL << 8 )
 
-#define WSREP_FLAGS_LAST                WSREP_FLAG_SNAPSHOT
+#define WSREP_FLAGS_LAST                WSREP_FLAG_SKIP_EVENT
 #define WSREP_FLAGS_MASK                ((WSREP_FLAGS_LAST << 1) - 1)
 
 
